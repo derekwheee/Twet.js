@@ -9,13 +9,22 @@
 ;(function ( $, window, document, undefined ) {
 
 	$.fn.twetJs = function( options ) {
-
-		var settings = $.extend( {
-			element    : this,
-			query      : '%23twitter',
-			tweetLimit : 10,
-			blacklist  : []
-		}, options);
+		
+		if(typeof options === "object") {
+				var settings = $.extend( {
+					$element  : this,
+					query     : '%23twitter',
+					limit     : 10,
+					blacklist : []
+				}, options);
+		} else if (typeof options === "string") {
+				var settings = {
+					$element    : this,
+					query      : options,
+					limit : 10,
+					blacklist  : []
+				};
+		}
 		
 		var methods = {
 			buildFeedUrl : function () {
@@ -55,7 +64,7 @@
 				success: function (json){
 					
 					if(!json.results.length) {
-						settings.element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");
+						settings.$element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");
 						return false;
 					}
 					
@@ -106,11 +115,11 @@
 							stamp       = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + time + "\">" + relTime + "</a> from @" + tweetProps.username,
 							parsedStamp = stamp.parseUsername();
 
-						settings.element.append("<div class=\"twet clearfix\"><img src=\"" +
+						settings.$element.append("<div class=\"twet clearfix\"><img src=\"" +
 							tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
 							parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>");
 							
-						if (count === settings.tweetLimit) {
+						if (count === settings.limit) {
 							return false;
 						}
 						
