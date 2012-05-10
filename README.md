@@ -1,4 +1,4 @@
 Twet.js
 =======
 
-### A jQuery plugin for basic Twitter streams.
+### A jQuery plugin for basic Twitter search streams.

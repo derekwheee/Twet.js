@@ -19,7 +19,8 @@
 		
 		var methods = {
 			buildFeedUrl : function () {
-				return 'http://search.twitter.com/search.json?q=' + settings.query + '&page=1';
+				var query = settings.query.replace("#","%23").replace("@", "%40");
+				return 'http://search.twitter.com/search.json?q=' + query + '&page=1';
 			}
 		}
 
@@ -54,7 +55,8 @@
 				success: function (json){
 					
 					if(!json.results.length) {
-						settings.element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");	
+						settings.element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");
+						return false;
 					}
 					
 					var results = json.results,
@@ -72,7 +74,9 @@
 						};
 						
 						/* User blacklist. Use sparingly */
-						if ($.inArray(tweetProps.username, settings.blacklist) > -1) return true;
+						if ($.inArray(tweetProps.username, settings.blacklist) > -1) {
+							return true;
+						}
 						
 						var year     = tweetProps.timestamp.substr(12, 4),
 							date     = tweetProps.timestamp.substr(5, 2),
@@ -94,18 +98,13 @@
 						months['Oct'] = "10";
 						months['Nov'] = "11";
 						months['Dec'] = "12";
-						month = months[monthtxt];
 						
-						var time = year + "-" + month + "-" + date + "T" + hour + ":" + minute + ":" + second + "Z";
-
-						var relTime = month + "/" + date + " @ " + hour + ":" + minute;
-						
-						var parsedTweet = tweetProps.tweetText.parseURL().parseUsername().parseHashtag();
-	
-						var stamp = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/"
-							+ tweetProps.tweetId + "\" title=\"" + time + "\">" + relTime + "</a> from @" + tweetProps.username;
-						
-						var parsedStamp = stamp.parseUsername();
+						var month       = months[monthtxt],
+							time        = year + "-" + month + "-" + date + "T" + hour + ":" + minute + ":" + second + "Z",
+							relTime     = month + "/" + date + " @ " + hour + ":" + minute,
+							parsedTweet = tweetProps.tweetText.parseURL().parseUsername().parseHashtag(),
+							stamp       = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + time + "\">" + relTime + "</a> from @" + tweetProps.username,
+							parsedStamp = stamp.parseUsername();
 
 						settings.element.append("<div class=\"twet clearfix\"><img src=\"" +
 							tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
@@ -114,7 +113,9 @@
 						if (count === settings.tweetLimit) {
 							return false;
 						}
+						
 						count++;
+						
 					});
 					
 					/*
