@@ -87,31 +87,31 @@
                 else if (elapsed < msPerHour) {
                     period      = Math.round(elapsed/msPerMinute);
                     periodLabel = (period === 1) ? 'minute' : 'minutes';
-                    return Math.round(elapsed/msPerMinute) + ' ' + periodLabel +' ago';
+                    return period + ' ' + periodLabel + ' ago';
                 }
 
                 else if (elapsed < msPerDay ) {
                     period      = Math.round(elapsed/msPerHour);
                     periodLabel = (period === 1) ? 'hour' : 'hours';
-                    return Math.round(elapsed/msPerHour) + ' ' + periodLabel +' ago';
+                    return period + ' ' + periodLabel + ' ago';
                 }
 
                 else if (elapsed < msPerMonth) {
                     period      = Math.round(elapsed/msPerDay);
                     periodLabel = (period === 1) ? 'day' : 'days';
-                    return Math.round(elapsed/msPerDay) + ' ' + periodLabel +' ago';
+                    return period + ' ' + periodLabel + ' ago';
                 }
 
                 else if (elapsed < msPerYear) {
                     period      = Math.round(elapsed/msPerMonth);
                     periodLabel = (period === 1) ? 'month' : 'months';
-                    return Math.round(elapsed/msPerMonth) + ' ' + periodLabel +' ago';
+                    return period + ' ' + periodLabel + ' ago';
                 }
 
                 else {
                     period      = Math.round(elapsed/msPerYear);
                     periodLabel = (period === 1) ? 'year' : 'years';
-                    return Math.round(elapsed/msPerYear) + ' ' + periodLabel +' ago';
+                    return period + ' ' + periodLabel + ' ago';
                 }
             }
         }
@@ -145,7 +145,7 @@
                 success: function ( json ){
 					
                     if(!json.results.length) {
-                            settings.$element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");
+                        settings.$element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");
                         return false;
                     }
 
