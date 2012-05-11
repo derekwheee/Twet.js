@@ -31,7 +31,7 @@
 						var query = settings.query.replace("#","%23").replace("@", "%40");
 						return 'http://search.twitter.com/search.json?q=' + query + '&page=1';
 				},
-				buildTimeStamp : function (tweetTime) {
+				buildTimeStamp : function ( tweetTime ) {
 						var year     = tweetTime.substr(12, 4),
 								date     = tweetTime.substr(5, 2),
 								hour     = tweetTime.substr(17, 2),
@@ -41,18 +41,20 @@
 						
 						return monthtxt + ' ' + date + ', ' + year + ' @ ' + hour + ':' + minute + ':' + second;
 				},
-				buildRelativeTime : function(tweetTime) {
-						var period,
+				buildRelativeTime : function( tweetTime ) {
+						var period, periodLabel,
 								msPerMinute = 60 * 1000,
 								msPerHour = msPerMinute * 60,
 								msPerDay = msPerHour * 24,
 								msPerMonth = msPerDay * 30,
-								msPerYear = msPerDay * 365;
+								msPerYear = msPerDay * 365,
+								present = new Date(),
+								timezoneOffset = present.getTimezoneOffset() / 60;
 								
 						var year     = tweetTime.substr(12, 4),
 								day      = tweetTime.substr(0, 3),
 								date     = tweetTime.substr(5, 2),
-								hour     = tweetTime.substr(17, 2) - 4,
+								hour     = tweetTime.substr(17, 2) - timezoneOffset,
 								minute   = tweetTime.substr(20,2),
 								second   = tweetTime.substr(23,2),
 								monthtxt = tweetTime.substr(8, 3),
@@ -74,7 +76,6 @@
 						var month   = months[monthtxt] - 1;
 		
 						var past = new Date(year, month, date, hour, minute, second, 999),
-								present = new Date(),
 								elapsed = present - past;
 						
 						if (elapsed < msPerMinute) {
