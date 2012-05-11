@@ -10,20 +10,19 @@
 
 	$.fn.twetJs = function( options ) {
 		
+		var settings = {
+				$element  : this,
+				query     : '%23twitter',
+				limit     : 10,
+				blacklist : []
+		}
+		
 		if(typeof options === "object") {
-				var settings = $.extend( {
-						$element  : this,
-						query     : '%23twitter',
-						limit     : 10,
-						blacklist : []
-				}, options);
+				var settings = $.extend(settings, options);
 		} else if (typeof options === "string") {
-				var settings = {
-						$element    : this,
-						query      : options,
-						limit : 10,
-						blacklist  : []
-				};
+				var settings = $.extend(settings, {
+						query : options
+				});
 		}
 		
 		var methods = {
@@ -43,12 +42,12 @@
 				},
 				buildRelativeTime : function( tweetTime ) {
 						var period, periodLabel,
-								msPerMinute = 60 * 1000,
-								msPerHour = msPerMinute * 60,
-								msPerDay = msPerHour * 24,
-								msPerMonth = msPerDay * 30,
-								msPerYear = msPerDay * 365,
-								present = new Date(),
+								msPerMinute    = 60 * 1000,
+								msPerHour      = msPerMinute * 60,
+								msPerDay       = msPerHour * 24,
+								msPerMonth     = msPerDay * 30,
+								msPerYear      = msPerDay * 365,
+								present        = new Date(),
 								timezoneOffset = present.getTimezoneOffset() / 60;
 								
 						var year     = tweetTime.substr(12, 4),
@@ -73,7 +72,7 @@
 						months['Nov'] = "11";
 						months['Dec'] = "12";
 						
-						var month   = months[monthtxt] - 1;
+						var month = months[monthtxt] - 1;
 		
 						var past = new Date(year, month, date, hour, minute, second, 999),
 								elapsed = present - past;
@@ -83,31 +82,31 @@
 						}
 						
 						else if (elapsed < msPerHour) {
-								period = Math.round(elapsed/msPerMinute);
+								period      = Math.round(elapsed/msPerMinute);
 								periodLabel = (period === 1) ? 'minute' : 'minutes';
 								return Math.round(elapsed/msPerMinute) + ' ' + periodLabel +' ago';
 						}
 						
 						else if (elapsed < msPerDay ) {
-								period = Math.round(elapsed/msPerHour);
+								period      = Math.round(elapsed/msPerHour);
 								periodLabel = (period === 1) ? 'hour' : 'hours';
 								return Math.round(elapsed/msPerHour) + ' ' + periodLabel +' ago';
 						}
 				
 						else if (elapsed < msPerMonth) {
-								period = Math.round(elapsed/msPerDay);
+								period      = Math.round(elapsed/msPerDay);
 								periodLabel = (period === 1) ? 'day' : 'days';
 								return Math.round(elapsed/msPerDay) + ' ' + periodLabel +' ago';
 						}
 						
 						else if (elapsed < msPerYear) {
-								period = Math.round(elapsed/msPerMonth);
+								period      = Math.round(elapsed/msPerMonth);
 								periodLabel = (period === 1) ? 'month' : 'months';
 								return Math.round(elapsed/msPerMonth) + ' ' + periodLabel +' ago';
 						}
 						
 						else {
-								period = Math.round(elapsed/msPerYear);
+								period      = Math.round(elapsed/msPerYear);
 								periodLabel = (period === 1) ? 'year' : 'years';
 								return Math.round(elapsed/msPerYear) + ' ' + periodLabel +' ago';
 						}
@@ -116,8 +115,7 @@
 
 		String.prototype.parseURL = function () {
 				return this.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function (url) {
-						var link = '<a href="' + url + '" target="_blank">' + url + '</a>';
-						return link;
+						return '<a href="' + url + '" target="_blank">' + url + '</a>';
 				});
 		};
 
@@ -131,8 +129,7 @@
 		String.prototype.parseHashtag = function () {
 				return this.replace(/[#]+[A-Za-z0-9-_]+/g, function (t) {
 						var tag = t.replace("#","%23");
-						var link = '<a href="http://search.twitter.com/search?q=' + tag + '" target="_blank">' + t + '</a>';
-						return link;
+						return '<a href="http://search.twitter.com/search?q=' + tag + '" target="_blank">' + t + '</a>';
 				});
 		};
 
@@ -142,7 +139,7 @@
 						type: "GET",
 						url: methods.buildFeedUrl(),
 						dataType: "jsonp",
-						success: function (json){
+						success: function ( json ){
 					
 								if(!json.results.length) {
 										settings.$element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");
@@ -167,9 +164,7 @@
 										if ($.inArray(tweetProps.username, settings.blacklist) > -1) {
 												return true;
 										}
-						
-										
-						
+
 										var fullDate     = methods.buildTimeStamp(tweetProps.timestamp),
 												relativeDate = methods.buildRelativeTime(tweetProps.timestamp),
 												parsedTweet = tweetProps.tweetText.parseURL().parseUsername().parseHashtag(),
