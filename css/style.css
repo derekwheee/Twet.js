@@ -79,6 +79,11 @@ header, .container {
 	margin: 0 auto 50px;
 }
 
+#twetError {
+    color: #f00;
+    font-weight: bold;
+}
+
 .twet {
 	position: relative;
 	background: #eee;
@@ -108,6 +113,17 @@ header, .container {
 
 .twet > div > small {
 	font: 10px/15px helvetica, arial, verdana, sans-serif;
+}
+
+#newTwets {
+    display: block;
+    background: #fee;
+    border: 1px solid #fcc;
+    padding: 5px 0;
+    font-weight: bold;
+    text-decoration: none;
+    color: #000;
+    text-align: center;
 }
 
 

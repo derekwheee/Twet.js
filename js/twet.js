@@ -14,10 +14,11 @@
     $.fn.twetJs = function( options ) {
 		
         var settings = {
-            $element  : this,
-            query     : '%23twitter',
-            limit     : 10,
-            blacklist : []
+            $element      : this,
+            query         : '%23twitter',
+            limit         : '',
+            refreshTweets : true,
+            blacklist     : []
         }
     		
         if(typeof options === "object") {
@@ -29,9 +30,26 @@
         }
 		
         var methods = {
-            buildFeedUrl : function () {
+            buildFeedUrl : function (isRefresh, refreshUrl) {
+
                 var query = settings.query.replace("#","%23").replace("@", "%40");
-                return 'http://search.twitter.com/search.json?q=' + query + '&page=1';
+
+                if (isRefresh) {
+                    return 'http://search.twitter.com/search.json' + refreshUrl;
+                } else {
+                    return 'http://search.twitter.com/search.json?q=' + query;
+                }
+
+            },
+            buildNewTweetsBadge : function ( newTweets ) {
+
+                $("<a/>", {
+                    id: "newTwets",
+                    href: "#",
+                    css: { "display" : "none" },
+                    text: newTweets + " new tweets"
+                }).prependTo(settings.$element).slideDown('slow');
+
             },
             buildTimeStamp : function ( tweetTime ) {
                 var year     = tweetTime.substr(12, 4),
@@ -138,88 +156,119 @@
 
         return this.each(function() {
 
-            $.ajax({ 
-                type: "GET",
-                url: methods.buildFeedUrl(),
-                dataType: "jsonp",
-                success: function ( json ){
-					
-                    if(!json.results.length) {
-                        settings.$element.append("<div class=\"twetError\">Woops! We couldn't find any tweets!</div>");
-                        return false;
-                    }
+            (function getTweets( feedUrl ) {
 
-                    var results = json.results,
-                        count = 1,
-                        first = results[0].id_str;
-					
-                    $(results).each(function () {
-                        var tweetProps = {
-                            timestamp : this.created_at,
-                            username  : this.from_user,
-                            avatarUrl : this.profile_image_url,
-                            tweetId   : this.id_str,
-                            tweetText : this.text,
-                            mention   : this.to_user
-                        };
-						
-                        /* User blacklist. Use sparingly */	
-                        if ($.inArray(tweetProps.username, settings.blacklist) > -1) {
-                            return true;
-                        }
-
-                        var fullDate     = methods.buildTimeStamp(tweetProps.timestamp),
-                            relativeDate = methods.buildRelativeTime(tweetProps.timestamp),
-                            parsedTweet = tweetProps.tweetText.parseURL().parseUsername().parseHashtag(),
-                            stamp       = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + fullDate + "\">" + relativeDate + "</a> from @" + tweetProps.username,
-                            parsedStamp = stamp.parseUsername();
-    
-                        settings.$element.append("<div class=\"twet clearfix\"><img src=\"" +
-                            tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
-                            parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>");
-    
-                        if (count === settings.limit) {
+                $.ajax({ 
+                    type: "GET",
+                    url: feedUrl || methods.buildFeedUrl(),
+                    dataType: "jsonp",
+                    success: function ( json ){
+    					
+                        if(!json.results.length) {
+                            $("<div/>", {
+                                id: "twetError",
+                                css: { "display" : "none" },
+                                text: "Woops! We couldn't find any tweets!"
+                            }).prependTo(settings.$element).fadeIn('slow');
                             return false;
                         }
-    
-                        count++;
-                
-                    });
 
-                    /*
-                    function getnewTwits() {
-                      setTimeout(function () {
-                        $.ajax({ 
-                          type: "GET",
-                          url: 'http://search.twitter.com/search.json?q=%23slsnow&page=1',
-                          dataType: "jsonp",
-                          success: function (json){
-                            var newResults = json.results;
-                            var newFirst = newResults[0].id_str;
-                            if ( newFirst === first ) {
-                              getnewTwits();
+                        var results    = json.results,
+                            refreshUrl = json.refresh_url,
+                            count      = 1;
+
+                        $(results).each(function () {
+                            var tweetProps = {
+                                timestamp : this.created_at,
+                                username  : this.from_user,
+                                avatarUrl : this.profile_image_url,
+                                tweetId   : this.id_str,
+                                tweetText : this.text,
+                                mention   : this.to_user
+                            };
+    						
+                            if ($.inArray(tweetProps.username, settings.blacklist) > -1) {
+                                return true;
                             }
-                            else { 
-                              $('#newtweets').show();
-                              clearTimeout();
+
+                            var fullDate     = methods.buildTimeStamp(tweetProps.timestamp),
+                                relativeDate = methods.buildRelativeTime(tweetProps.timestamp),
+                                parsedTweet = tweetProps.tweetText.parseURL().parseUsername().parseHashtag(),
+                                stamp       = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + fullDate + "\">" + relativeDate + "</a> from @" + tweetProps.username,
+                                parsedStamp = stamp.parseUsername();
+                            
+
+                            /*
+                             *  BRAINSTORM: .prependTo() new container for every execution.
+                             *  Then .append() new tweets to newly created container.
+                             *  This will allow prepending new tweets, and maintaining chrono order.
+                             */
+                            settings.$element.append("<div class=\"twet clearfix\"><img src=\"" +
+                                tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
+                                parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>");
+        
+                            if (count === settings.limit) {
+                                return false;
                             }
-                          }
+        
+                            count++;
+                    
                         });
-                      }, 30000);
+
+                        if (settings.refreshTweets) {
+                            (function getNewTweets() {
+
+                                var newTwetUrl = methods.buildFeedUrl(true, refreshUrl);
+
+                                setTimeout(function () {
+                                    $.ajax({ 
+                                        type: "GET",
+                                        url: newTwetUrl,
+                                        dataType: "jsonp",
+                                        success: function (json){
+                                            var results       = json.results,
+                                                newTweetCount = results.length;
+
+                                            if ( !results.length ) {
+                                                getNewTweets();
+                                            }
+                                            else { 
+                                                clearTimeout();
+                                                methods.buildNewTweetsBadge(newTweetCount);
+                                                $("#newTwets").click(function(){
+                                                    getTweets(newTwetUrl);
+                                                    $(this).slideUp('slow', function() {
+                                                        $(this).remove();
+                                                    });
+                                                });
+                                            }
+                                        }
+                                    });
+                                }, 3000);
+
+                            })();
+                        }
+
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+
+                        // Do some error handling
+
+                    },
+                    complete: function(jqXHR, textStatus) {
+
+
+
+                        if (textStatus === "success") {
+                            // Do some success handling
+                        } else {
+                            // Do some error handling
+                        }
+
                     }
+                });
 
-                    getnewTwits();
-                    */
-                }
-            });
-
-            /*
-            $('#newtweets').click(function () {
-              $('#newtweets').hide();
-              $('#thetweets').empty();
-              getTwit();
-            });
-            */
+            })();
 
         });
 
