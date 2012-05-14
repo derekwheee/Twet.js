@@ -18,7 +18,7 @@
             query         : '%23twitter',
             limit         : '',
             refreshTweets : true,
-            refreshRate   : 3000,
+            refreshRate   : 30000,
             blacklist     : []
         }
     		
