@@ -16,9 +16,10 @@
         var settings = {
             $element      : this,
             query         : '%23twitter',
-            limit         : '',
+            limit         : 5,
             refreshTweets : true,
             refreshRate   : 30000,
+            titleBadge    : true,
             blacklist     : []
         }
     		
@@ -265,12 +266,28 @@
                                                 // If we found new tweets, let's notify the user
                                                 // Make the badge, then give it something to do
                                                 methods.buildNewTweetsBadge(newTweetCount);
+
+                                                if (settings.titleBadge) {
+                                                    var $title     = $("title"),
+                                                        pageTitle  = $title.text();
+
+                                                    $title.text("(" + newTweetCount + ") " + pageTitle);
+                                                }
+                                                
+
                                                 $("#newTwets").click(function(e){
 
                                                     e.preventDefault();
+
+                                                    if ($title) {
+                                                        $title.text(pageTitle);
+                                                    }
+
                                                     $(this).slideUp('slow', function() {
+
                                                         $(this).remove();
                                                         getTweets(newTwetUrl);
+
                                                     });
 
                                                 });
