@@ -52,9 +52,12 @@
 
             },
             buildTimeStamp : function ( tweetTime ) {
+                var present = new Date();
+                    timezoneOffset = present.getTimezoneOffset() / 60;
+
                 var year     = tweetTime.substr(12, 4),
                     date     = tweetTime.substr(5, 2),
-                    hour     = tweetTime.substr(17, 2),
+                    hour     = tweetTime.substr(17, 2) - timezoneOffset,
                     minute   = tweetTime.substr(20,2),
                     second   = tweetTime.substr(23,2),
                     monthtxt = tweetTime.substr(8, 3);
@@ -244,7 +247,7 @@
                                             }
                                         }
                                     });
-                                }, 3000);
+                                }, 30000);
 
                             })();
                         }
