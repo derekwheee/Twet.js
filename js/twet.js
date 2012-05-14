@@ -18,6 +18,7 @@
             query         : '%23twitter',
             limit         : '',
             refreshTweets : true,
+            refreshRate   : 3000,
             blacklist     : []
         }
     		
@@ -167,6 +168,7 @@
                     dataType: "jsonp",
                     success: function ( json ){
     					
+                        // Make sure we found somes tweets to show.
                         if(!json.results.length) {
                             $("<div/>", {
                                 id: "twetError",
@@ -176,11 +178,28 @@
                             return false;
                         }
 
+                        // Store data in variable, store URL to check for new tweets, intitialize count
                         var results    = json.results,
                             refreshUrl = json.refresh_url,
                             count      = 1;
 
+                        /*
+                         *  Here we're creating a container for blocks of tweets to live in.
+                         *  This allows us to prepend "new tweet" sections, while using append
+                         *  to maintain chronological order.
+                         */
+                        $("<div/>", {
+                            class: "twetGroupWrapper",
+                            css: { "display" : "none" }
+                        }).prependTo(settings.$element);
+
+                        // Store this container in a var for use in the .each()
+                        var $appendWrapper = $(settings.$element).find('.twetGroupWrapper').first();
+
+                        // Let the fun begin. Here come the tweets.
                         $(results).each(function () {
+
+                            // Shove all the JSON data into an object
                             var tweetProps = {
                                 timestamp : this.created_at,
                                 username  : this.from_user,
@@ -189,38 +208,40 @@
                                 tweetText : this.text,
                                 mention   : this.to_user
                             };
-    						
+
+                            // Tweep blacklist. If their username exists in settings.blacklist, skip 'em
                             if ($.inArray(tweetProps.username, settings.blacklist) > -1) {
                                 return true;
                             }
 
+                            // Build dates. Turn hashtags, URLs, and @mentions into links.
                             var fullDate     = methods.buildTimeStamp(tweetProps.timestamp),
                                 relativeDate = methods.buildRelativeTime(tweetProps.timestamp),
                                 parsedTweet = tweetProps.tweetText.parseURL().parseUsername().parseHashtag(),
                                 stamp       = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + fullDate + "\">" + relativeDate + "</a> from @" + tweetProps.username,
                                 parsedStamp = stamp.parseUsername();
-                            
 
-                            /*
-                             *  BRAINSTORM: .prependTo() new container for every execution.
-                             *  Then .append() new tweets to newly created container.
-                             *  This will allow prepending new tweets, and maintaining chrono order.
-                             */
-                            settings.$element.append("<div class=\"twet clearfix\"><img src=\"" +
-                                tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
-                                parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>");
-        
+                            // Shove all the tweets into that DIV we created earlier
+                            $appendWrapper
+                                .append("<div class=\"twet clearfix\"><img src=\"" +
+                                    tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
+                                    parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>")
+                                .slideDown();
+
+                            // If we've reached the limit, let's get out of this loop
                             if (count === settings.limit) {
                                 return false;
                             }
         
-                            count++;
+                            count++; // Duh
                     
                         });
 
+                        // Now we're going to periodically check for new tweets. Unless !settings.refreshTweets
                         if (settings.refreshTweets) {
                             (function getNewTweets() {
 
+                                // Build the ajax URL. We're doing it here because we actually need it again later
                                 var newTwetUrl = methods.buildFeedUrl(true, refreshUrl);
 
                                 setTimeout(function () {
@@ -229,25 +250,39 @@
                                         url: newTwetUrl,
                                         dataType: "jsonp",
                                         success: function (json){
+
+                                            // Store JSON in var, see how many new tweets we found
                                             var results       = json.results,
                                                 newTweetCount = results.length;
 
                                             if ( !results.length ) {
+
+                                                // If we didn't find new tweets, we'll check again
                                                 getNewTweets();
-                                            }
-                                            else { 
-                                                clearTimeout();
+
+                                            } else {
+
+                                                // If we found new tweets, let's notify the user
+                                                // Make the badge, then give it something to do
                                                 methods.buildNewTweetsBadge(newTweetCount);
-                                                $("#newTwets").click(function(){
-                                                    getTweets(newTwetUrl);
+                                                $("#newTwets").click(function(e){
+
+                                                    e.preventDefault();
                                                     $(this).slideUp('slow', function() {
                                                         $(this).remove();
+                                                        getTweets(newTwetUrl);
                                                     });
+
                                                 });
+
+                                                // We won't need to check again, so let's clear the setTimeout
+                                                clearTimeout();
+
                                             }
+
                                         }
                                     });
-                                }, 30000);
+                                }, settings.refreshRate);
 
                             })();
                         }
@@ -259,8 +294,6 @@
 
                     },
                     complete: function(jqXHR, textStatus) {
-
-
 
                         if (textStatus === "success") {
                             // Do some success handling
