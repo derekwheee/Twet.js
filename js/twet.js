@@ -191,7 +191,6 @@
                          */
                         $("<div/>", {
                             class: "twetGroupWrapper",
-                            css: { "display" : "none" }
                         }).prependTo(settings.$element);
 
                         // Store this container in a var for use in the .each()
@@ -223,11 +222,12 @@
                                 parsedStamp = stamp.parseUsername();
 
                             // Shove all the tweets into that DIV we created earlier
-                            $appendWrapper
-                                .append("<div class=\"twet clearfix\"><img src=\"" +
+                            $("<div/>", {
+                                class : "twet clearfix",
+                                html  : "<img src=\"" +
                                     tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
-                                    parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>")
-                                .slideDown();
+                                    parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>"
+                            }).appendTo($appendWrapper);
 
                             // If we've reached the limit, let's get out of this loop
                             if (count === settings.limit) {
