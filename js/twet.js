@@ -3,13 +3,14 @@
  * Twet.js
  * A simple jQuery plugin for adding Twitter streams to your website
  * Author: Derek Wheelden
- * With help from: Joshua Marsh
+ * Version: 1.0.2
  * Requires: jQuery 1.6+
- *
  * Copyright (c) 2012, Derek Wheelden (derek[dot]wheelden[at]gmail[dot]com)
  */
 
 ;(function ( $, window, document, undefined ) {
+
+    "use strict";
 
     $.fn.twetJs = function( options ) {
 		
@@ -21,12 +22,12 @@
             refreshRate   : 30000,
             titleBadge    : true,
             blacklist     : []
-        }
-    		
+        };
+	
         if(typeof options === "object") {
-            var settings = $.extend(settings, options);
+            settings = $.extend(settings, options);
         } else if (typeof options === "string") {
-            var settings = $.extend(settings, {
+            settings = $.extend(settings, {
                 query : options
             });
         }
@@ -54,7 +55,7 @@
 
             },
             buildTimeStamp : function ( tweetTime ) {
-                var present = new Date();
+                var present = new Date(),
                     timezoneOffset = present.getTimezoneOffset() / 60;
 
                 var year     = tweetTime.substr(12, 4),
@@ -83,20 +84,20 @@
                     minute   = tweetTime.substr(20,2),
                     second   = tweetTime.substr(23,2),
                     monthtxt = tweetTime.substr(8, 3),
-                    months = {};
-
-                months['Jan'] = "01";
-                months['Feb'] = "02";
-                months['Mar'] = "03";
-                months['Apr'] = "04";
-                months['May'] = "05";
-                months['Jun'] = "06";
-                months['Jul'] = "07";
-                months['Aug'] = "08";
-                months['Sep'] = "09";
-                months['Oct'] = "10";
-                months['Nov'] = "11";
-                months['Dec'] = "12";
+                    months = {
+                        Jan : "01",
+                        Feb : "02",
+                        Mar : "03",
+                        Apr : "04",
+                        May : "05",
+                        Jun : "06",
+                        Jul : "07",
+                        Aug : "08",
+                        Sep : "09",
+                        Oct : "10",
+                        Nov : "11",
+                        Dec : "12"
+                    };
 
                 var month = months[monthtxt] - 1;
 
@@ -137,7 +138,7 @@
                     return period + ' ' + periodLabel + ' ago';
                 }
             }
-        }
+        };
 
         String.prototype.parseURL = function () {
             return this.replace(/[A-Za-z]+:\/\/[A-Za-z0-9-_]+\.[A-Za-z0-9-_:%&~\?\/.=]+/g, function (url) {
@@ -163,12 +164,12 @@
 
             (function getTweets( feedUrl ) {
 
-                $.ajax({ 
+                $.ajax({
                     type: "GET",
                     url: feedUrl || methods.buildFeedUrl(),
                     dataType: "jsonp",
                     success: function ( json ){
-    					
+
                         // Make sure we found somes tweets to show.
                         if(!json.results.length) {
                             $("<div/>", {
@@ -190,7 +191,7 @@
                          *  to maintain chronological order.
                          */
                         $("<div/>", {
-                            class: "twetGroupWrapper",
+                            "class" : "twetGroupWrapper"
                         }).prependTo(settings.$element);
 
                         // Store this container in a var for use in the .each()
@@ -223,8 +224,8 @@
 
                             // Shove all the tweets into that DIV we created earlier
                             $("<div/>", {
-                                class : "twet clearfix",
-                                html  : "<img src=\"" +
+                                "class" : "twet clearfix",
+                                html    : "<img src=\"" +
                                     tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
                                     parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>"
                             }).appendTo($appendWrapper);
@@ -246,7 +247,7 @@
                                 var newTwetUrl = methods.buildFeedUrl(true, refreshUrl);
 
                                 setTimeout(function () {
-                                    $.ajax({ 
+                                    $.ajax({
                                         type: "GET",
                                         url: newTwetUrl,
                                         dataType: "jsonp",
@@ -301,7 +302,7 @@
                                     });
                                 }, settings.refreshRate);
 
-                            })();
+                            }());
                         }
 
                     },
@@ -321,10 +322,13 @@
                     }
                 });
 
-            })();
+            }());
 
         });
 
     };
 
-})( jQuery, window, document );
+}( jQuery, window, document ));
+
+
+
