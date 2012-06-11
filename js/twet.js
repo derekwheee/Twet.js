@@ -3,7 +3,7 @@
  * Twet.js
  * A simple jQuery plugin for adding Twitter streams to your website
  * Author: Derek Wheelden
- * Version: 1.0.2
+ * Version: 1.1.0
  * Requires: jQuery 1.6+
  * Copyright (c) 2012, Derek Wheelden (derek[dot]wheelden[at]gmail[dot]com)
  */
@@ -16,8 +16,8 @@
 		
         var settings = {
             $element      : this,
-            query         : '%23twitter',
-            limit         : 5,
+            query         : '#twitter',
+            limit         : 15,
             refreshTweets : true,
             refreshRate   : 30000,
             titleBadge    : true,
@@ -38,9 +38,9 @@
                 var query = settings.query.replace("#","%23").replace("@", "%40");
 
                 if (isRefresh) {
-                    return 'http://search.twitter.com/search.json' + refreshUrl;
+                    return "http://search.twitter.com/search.json" + refreshUrl;
                 } else {
-                    return 'http://search.twitter.com/search.json?q=' + query;
+                    return "http://search.twitter.com/search.json?q=" + query + "&rpp=" + settings.limit + "&include_entities=t";
                 }
 
             },
@@ -137,6 +137,40 @@
                     periodLabel = (period === 1) ? 'year' : 'years';
                     return period + ' ' + periodLabel + ' ago';
                 }
+            },
+            parseTweet : function ( text, entities ) {
+
+                var username,
+                    hashtag,
+                    url,
+                    displayUrl;
+
+                // Parse username mentions
+                $(entities.user_mentions).each(function (index) {
+
+                    username = this.screen_name;
+                    text     = text.replace("@" + username, "<a href=\"https://twitter.com/#!/" + username + "\">@" + username + "</a>");
+
+                });
+
+                // Parse hashtags
+                $(entities.hashtags).each(function (index) {
+
+                    hashtag = this.text;
+                    text    = text.replace("#" + hashtag, "<a href=\"https://twitter.com/#!/search/%23" + hashtag + "\">#" + hashtag + "</a>");
+
+                });
+
+                // Parse URLs
+                $(entities.urls).each(function (index) {
+
+                    url        = this.url;
+                    displayUrl = this.display_url;
+                    text       = text.replace(url, "<a href=\"" + url + "\">" + displayUrl + "</a>");
+
+                });
+
+                return text;
             }
         };
 
@@ -207,6 +241,7 @@
                                 avatarUrl : this.profile_image_url,
                                 tweetId   : this.id_str,
                                 tweetText : this.text,
+                                entities  : this.entities,
                                 mention   : this.to_user
                             };
 
@@ -218,9 +253,9 @@
                             // Build dates. Turn hashtags, URLs, and @mentions into links.
                             var fullDate     = methods.buildTimeStamp(tweetProps.timestamp),
                                 relativeDate = methods.buildRelativeTime(tweetProps.timestamp),
-                                parsedTweet = tweetProps.tweetText.parseURL().parseUsername().parseHashtag(),
-                                stamp       = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + fullDate + "\">" + relativeDate + "</a> from @" + tweetProps.username,
-                                parsedStamp = stamp.parseUsername();
+                                parsedTweet = methods.parseTweet(tweetProps.tweetText, tweetProps.entities),
+                                stamp        = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + fullDate + "\">" + relativeDate + "</a> from @" + tweetProps.username,
+                                parsedStamp  = stamp.parseUsername();
 
                             // Shove all the tweets into that DIV we created earlier
                             $("<div/>", {
