@@ -3,7 +3,7 @@
  * Twet.js
  * A simple jQuery plugin for adding Twitter streams to your website
  * Author: Derek Wheelden
- * Version: 1.1.0
+ * Version: 1.1.1
  * Requires: jQuery 1.6+
  * Copyright (c) 2012, Derek Wheelden (derek[dot]wheelden[at]gmail[dot]com)
  */
@@ -138,35 +138,38 @@
                     return period + ' ' + periodLabel + ' ago';
                 }
             },
-            parseTweet : function ( text, entities ) {
+            parseTweet : function ( text, entity ) {
 
                 var username,
                     hashtag,
                     url,
-                    displayUrl;
+                    displayUrl,
+                    longUrl,
+                    baseUrl = "https://twitter.com/#!/";
 
                 // Parse username mentions
-                $(entities.user_mentions).each(function (index) {
+                $(entity.user_mentions).each(function (index) {
 
                     username = this.screen_name;
-                    text     = text.replace("@" + username, "<a href=\"https://twitter.com/#!/" + username + "\">@" + username + "</a>");
+                    text     = text.replace("@" + username, "<a href=\"" + baseUrl + username + "\" title=\"@" + username + "\">@" + username + "</a>");
 
                 });
 
                 // Parse hashtags
-                $(entities.hashtags).each(function (index) {
+                $(entity.hashtags).each(function (index) {
 
                     hashtag = this.text;
-                    text    = text.replace("#" + hashtag, "<a href=\"https://twitter.com/#!/search/%23" + hashtag + "\">#" + hashtag + "</a>");
+                    text    = text.replace("#" + hashtag, "<a href=\"" + baseUrl + "search/%23" + hashtag + "\" title=\"#" + hashtag + "\">#" + hashtag + "</a>");
 
                 });
 
                 // Parse URLs
-                $(entities.urls).each(function (index) {
+                $(entity.urls).each(function (index) {
 
                     url        = this.url;
                     displayUrl = this.display_url;
-                    text       = text.replace(url, "<a href=\"" + url + "\">" + displayUrl + "</a>");
+                    longUrl    = this.expanded_url;
+                    text       = text.replace(url, "<a href=\"" + url + "\" title=\"" + longUrl + "\">" + displayUrl + "</a>");
 
                 });
 
