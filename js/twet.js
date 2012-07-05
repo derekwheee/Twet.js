@@ -18,9 +18,9 @@
             $element      : this,
             query         : '#twitter',
             limit         : 1,
-            refreshTweets : true,
+            refreshTweets : false,
             refreshRate   : 30000,
-            titleBadge    : true,
+            titleBadge    : false,
             blacklist     : []
         };
 	
