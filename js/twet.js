@@ -17,7 +17,7 @@
         var settings = {
             $element      : this,
             query         : '#twitter',
-            limit         : 15,
+            limit         : 1,
             refreshTweets : true,
             refreshRate   : 30000,
             titleBadge    : true,
