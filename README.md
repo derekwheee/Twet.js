@@ -9,10 +9,17 @@ Twet.js started as a fairly basic piece of code for [Sugarloaf.com](http://www.s
 
 Twitter has a widget for search feeds. I'll even show you, it's [right here](https://twitter.com/about/resources/widgets/widget_search). But it's very limited, it's not very customizable, and it's hard to brand. You'll run into similar problems with most other plugins. I wrote Twet.js to overcome these problems, and to hopefully help other people overcome these problems.
 
+### Changelog
+**1.2**
+
+* Improved theming. Added classes to tweet elements.
+* Included .scss and .css files reflect only CSS required for Twet.js styling.
+* Cleaned up unnecessary files. Files in repo are all plugin files.
+
 ### Goals
 Twet.js is young. I started working on it in May 2012, and I only work on it in my spare time. So it's far from where I want it to be. My first goal was to get a plugin with some basic Twitter functionality. Now I'm building on that. Here's what you can look forward to in future version.
 
-- **Better Templating**. Twet.js is certainly more customizable than the Twitter widget, but it could be better. The goal is to make everything more modular, so you can display exactly how you want it.
+- **Better Templating**. Twet.js is certainly more customizable than the Twitter widget, but it could be better. The goal is to make everything more modular, so you can display exactly how you want it. *Improved in version 1.2*.
 - **Reply, retweet, and favorite**. These are things I want you to be able to do right from your search stream. This is something you won't find in most Twitter stream plugins, but you'll find it here.
 - **Media**. Twitter recently added media to the entities portion of it's API. This is pretty killer, especially if you're trying to crowdsource photos related to your business using a hashtag.
 - **Conversations**. One of the great things about Twitter is the ability to have threaded conversations. Hashtags are a great way to track conversations, but sometimes the chatter strays from the tag.
