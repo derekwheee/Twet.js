@@ -3,7 +3,7 @@
  * Twet.js
  * A simple jQuery plugin for adding Twitter streams to your website
  * Author: Derek Wheelden
- * Version: 1.1.1
+ * Version: 1.2
  * Requires: jQuery 1.6+
  * Copyright (c) 2012, Derek Wheelden (derek[dot]wheelden[at]gmail[dot]com)
  */
@@ -264,8 +264,8 @@
                             $("<div/>", {
                                 "class" : "twet clearfix",
                                 html    : "<img src=\"" +
-                                    tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" /><div>" +
-                                    parsedTweet + "<br /><small>" + parsedStamp + "</small></div></div>"
+                                    tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" class=\"twetAvatar\" /><div class=\"twetText\">" +
+                                    parsedTweet + "<br /><div class=\"twetDetails\">" + parsedStamp + "</div></div></div>"
                             }).appendTo($appendWrapper);
 
                             // If we've reached the limit, let's get out of this loop
