@@ -1,10 +1,13 @@
 /* ===== Twet.js Styles ===== */
 .twet {
   position: relative;
-  background: #eee;
-  margin: 10px 0;
-  padding: 10px;
-  border-radius: 10px;
+  width: 700px;
+  padding: 20px 10px;
+  border: 1px solid #ddd;
+  border-width: 0 0 1px;
+}
+.twet:hover {
+  background-color: #eee;
 }
 .twet a {
   color: #900;
@@ -15,16 +18,75 @@
   text-decoration: underline;
 }
 .twet .twetAvatar {
+  display: block;
   float: left;
   width: 48px;
-  border-radius: 10px;
+  border-radius: 5px;
   margin: 0 10px 0 0;
 }
-.twet .twetText {
+.twet .twetTextBox {
+  width: 642px;
+  float: right;
+}
+.twet .twetTextBox .twetUser {
+  height: 18px;
+  padding: 0 0 3px;
+  float: left;
+}
+.twet .twetTextBox .twetUser strong a {
+  color: #000;
+}
+.twet .twetTextBox .twetUser small a {
+  color: #999;
+}
+.twet .twetTextBox .twetTime {
+  height: 18px;
+  font-size: 12px;
+  float: right;
+}
+.twet .twetTextBox .twetTime a {
+  color: #999;
+}
+.twet .twetTextBox .twetText {
   font: 16px/20px helvetica, arial, verdana, sans-serif;
 }
-.twet .twetText .twetDetails {
-  font: 10px/15px helvetica, arial, verdana, sans-serif;
+.twet .twetTextBox .twetInteract {
+  padding: 5px 0 0;
+  font: 12px/15px helvetica, arial, verdana, sans-serif;
+}
+.twet .twetTextBox .twetInteract a {
+  padding: 0 10px 0 0;
+  text-decoration: none;
+}
+.twet .twetTextBox .twetInteract a .icon {
+  display: inline-block;
+  position: relative;
+  top: 2px;
+  background-color: #f00;
+  width: 16px;
+  height: 16px;
+  background: url("../../img/everything-spritev2.png") no-repeat;
+}
+.twet .twetTextBox .twetInteract a .reply {
+  background-position: 0 0;
+}
+.twet .twetTextBox .twetInteract a:hover .reply {
+  background-position: -16px 0;
+}
+.twet .twetTextBox .twetInteract a .retweet {
+  background-position: -80px 0;
+}
+.twet .twetTextBox .twetInteract a:hover .retweet {
+  background-position: -96px 0;
+}
+.twet .twetTextBox .twetInteract a .favorite {
+  background-position: -32px 0;
+}
+.twet .twetTextBox .twetInteract a:hover .favorite {
+  background-position: -48px 0;
+}
+.twet:hover .twetInteract {
+  visibility: visible;
 }
 
 #newTwets {

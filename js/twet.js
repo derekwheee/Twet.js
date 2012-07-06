@@ -3,7 +3,7 @@
  * Twet.js
  * A simple jQuery plugin for adding Twitter streams to your website
  * Author: Derek Wheelden
- * Version: 1.2
+ * Version: 1.3
  * Requires: jQuery 1.6+
  * Copyright (c) 2012, Derek Wheelden (derek[dot]wheelden[at]gmail[dot]com)
  */
@@ -105,38 +105,47 @@
                     elapsed = present - past;
 
                 if (elapsed < msPerMinute) {
-                    return Math.round(elapsed/1000) + ' seconds ago';
+                    // return Math.round(elapsed/1000) + ' seconds ago';
+                    return Math.round(elapsed/1000) + 's';
                 }
-
                 else if (elapsed < msPerHour) {
                     period      = Math.round(elapsed/msPerMinute);
                     periodLabel = (period === 1) ? 'minute' : 'minutes';
-                    return period + ' ' + periodLabel + ' ago';
+                    // return period + ' ' + periodLabel + ' ago';
+                    return period + 'm';
+                } else {
+                    return parseFloat(date).toFixed() + ' ' + monthtxt;
                 }
 
+                /*
                 else if (elapsed < msPerDay ) {
                     period      = Math.round(elapsed/msPerHour);
                     periodLabel = (period === 1) ? 'hour' : 'hours';
-                    return period + ' ' + periodLabel + ' ago';
+                    // return period + ' ' + periodLabel + ' ago';
+                    return period + 'h';
                 }
 
                 else if (elapsed < msPerMonth) {
                     period      = Math.round(elapsed/msPerDay);
                     periodLabel = (period === 1) ? 'day' : 'days';
-                    return period + ' ' + periodLabel + ' ago';
+                    // return period + ' ' + periodLabel + ' ago';
+                    return period + 'd';
                 }
 
                 else if (elapsed < msPerYear) {
                     period      = Math.round(elapsed/msPerMonth);
                     periodLabel = (period === 1) ? 'month' : 'months';
-                    return period + ' ' + periodLabel + ' ago';
+                    // return period + ' ' + periodLabel + ' ago';
+                    return period + 'mo';
                 }
 
                 else {
                     period      = Math.round(elapsed/msPerYear);
                     periodLabel = (period === 1) ? 'year' : 'years';
-                    return period + ' ' + periodLabel + ' ago';
+                    //return period + ' ' + periodLabel + ' ago';
+                    return period + 'y';
                 }
+                */
             },
             parseTweet : function ( text, entity ) {
 
@@ -241,6 +250,7 @@
                             var tweetProps = {
                                 timestamp : this.created_at,
                                 username  : this.from_user,
+                                fullName  : this.from_user_name,
                                 avatarUrl : this.profile_image_url,
                                 tweetId   : this.id_str,
                                 tweetText : this.text,
@@ -256,16 +266,32 @@
                             // Build dates. Turn hashtags, URLs, and @mentions into links.
                             var fullDate     = methods.buildTimeStamp(tweetProps.timestamp),
                                 relativeDate = methods.buildRelativeTime(tweetProps.timestamp),
-                                parsedTweet = methods.parseTweet(tweetProps.tweetText, tweetProps.entities),
-                                stamp        = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + fullDate + "\">" + relativeDate + "</a> from @" + tweetProps.username,
-                                parsedStamp  = stamp.parseUsername();
+                                parsedTweet  = methods.parseTweet(tweetProps.tweetText, tweetProps.entities),
+                                timeStamp    = "<a href=\"https://twitter.com/#!/" + tweetProps.username + "/status/" + tweetProps.tweetId + "\" title=\"" + fullDate + "\">" + relativeDate + "</a>";
+                                //parsedStamp  = stamp.parseUsername();
 
                             // Shove all the tweets into that DIV we created earlier
                             $("<div/>", {
                                 "class" : "twet clearfix",
-                                html    : "<img src=\"" +
-                                    tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" class=\"twetAvatar\" /><div class=\"twetText\">" +
-                                    parsedTweet + "<br /><div class=\"twetDetails\">" + parsedStamp + "</div></div></div>"
+                                html    :
+                                    "<a href=\"https://www.twitter.com/" + tweetProps.username + "\" title=\"@" + tweetProps.username + "\">" +
+                                        "<img src=\"" + tweetProps.avatarUrl + "\" alt=\"" + tweetProps.username + "\" class=\"twetAvatar\" />" +
+                                    "</a>" +
+                                    "<div class=\"twetTextBox\">" +
+                                        "<div class=\"clearfix\">" +
+                                            "<div class=\"twetTime\">" + timeStamp + "</div>" +
+                                            "<div class=\"twetUser\">" +
+                                                "<strong><a href=\"https://www.twitter.com/" + tweetProps.username + "\" title=\"@" + tweetProps.username + "\">" + tweetProps.fullName + "</a></strong> " +
+                                                " <small><a href=\"https://www.twitter.com/" + tweetProps.username + "\" title=\"@" + tweetProps.username + "\">@" + tweetProps.username + "</a></small>" +
+                                            "</div>" +
+                                        "</div>" +
+                                        "<div class=\"twetText\">" + parsedTweet + "</div>" +
+                                        "<div class=\"twetInteract\">" +
+                                            "<a href=\"https://twitter.com/intent/tweet?in_reply_to=" + tweetProps.tweetId + "\"><span class=\"icon reply\"></span> Reply</a>" +
+                                            "<a href=\"https://twitter.com/intent/retweet?tweet_id=" + tweetProps.tweetId + "\"><span class=\"icon retweet\"></span> Retweet</a>" +
+                                            "<a href=\"https://twitter.com/intent/favorite?tweet_id=" + tweetProps.tweetId + "\"><span class=\"icon favorite\"></span> Favorite</a>" +
+                                        "</div>" +
+                                    "</div>"
                             }).appendTo($appendWrapper);
 
                             // If we've reached the limit, let's get out of this loop
@@ -365,6 +391,53 @@
         });
 
     };
+
+    (function() {
+        if (window.__twitterIntentHandler) {
+            return;
+        }
+
+        var intentRegex = /twitter\.com(\:\d{2,4})?\/intent\/(\w+)/,
+            windowOptions = 'scrollbars=yes,resizable=yes,toolbar=no,location=yes',
+            width = 550,
+            height = 420,
+            winHeight = screen.height,
+            winWidth = screen.width;
+
+        function handleIntent(e) {
+            e = e || window.event;
+            var target = e.target || e.srcElement,
+                m, left, top;
+
+            while (target && target.nodeName.toLowerCase() !== 'a') {
+                target = target.parentNode;
+            }
+
+            if (target && target.nodeName.toLowerCase() === 'a' && target.href) {
+                m = target.href.match(intentRegex);
+                if (m) {
+                    left = Math.round((winWidth / 2) - (width / 2));
+                    top = 0;
+
+                    if (winHeight > height) {
+                        top = Math.round((winHeight / 2) - (height / 2));
+                    }
+
+                    window.open(target.href, 'intent', windowOptions + ',width=' + width +
+                                               ',height=' + height + ',left=' + left + ',top=' + top);
+                    e.returnValue = false;
+                    e.preventDefault();
+                }
+            }
+        }
+
+        if (document.addEventListener) {
+            document.addEventListener('click', handleIntent, false);
+        } else if (document.attachEvent) {
+            document.attachEvent('onclick', handleIntent);
+        }
+        window.__twitterIntentHandler = true;
+    }());
 
 }( jQuery, window, document ));
 
