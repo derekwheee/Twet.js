@@ -1,6 +1,11 @@
 Twet.js
 =======
 
+## That's all, folks
+With the blackout  of v1 of the Twitter API imminent, Twet.js is dead. Twet.js was meant to be extremely simple to use, and the new auth requirements would require a lot more configuration on your end before the plugin would be useful.
+
+The new widgets and embed options Twitter launched last year are also much more attractive than they used to be. They still lack a lot of flexibility, but they are very easy to use.
+
 ### A jQuery plugin for basic Twitter search streams
 
 Check out the [live demo](http://frxnz.github.com/twetjs), and basic documentation.
